@@ -5,6 +5,7 @@ namespace App\Controller;
 
 
 use App\Entity\User;
+use App\Service\User as UserService;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -84,23 +85,30 @@ class UserController extends AbstractController
      * @Route("/edit/{user}", name="user_edit")
      * @param Request $request
      * @param User $user
+     * @param UserService $userService
      * @return Response
      */
-    public function edit(Request $request, User $user): Response {
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
+    public function edit(Request $request, User $user, UserService $userService): Response {
 
-        if($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->flush();
+        if($user === $userService->getLoggedUser()) {
+            $form = $this->createForm(UserType::class, $user);
+            $form->handleRequest($request);
 
-            $this->addFlash('success', "The user has been updated.");
-            return $this->redirectToRoute('user');
+            if($form->isSubmitted() && $form->isValid()) {
+                $this->entityManager->flush();
+
+                $this->addFlash('success', "The user has been updated.");
+                return $this->redirectToRoute('user');
+            }
+
+            return $this->render('user/edit.html.twig', [
+                'form' => $form->createView(),
+                'user' => $user
+            ]);
+        } else {
+            return $this->redirectToRoute('home');
         }
 
-        return $this->render('user/edit.html.twig', [
-            'form' => $form->createView(),
-            'user' => $user
-        ]);
     }
 
     /**
@@ -114,5 +122,19 @@ class UserController extends AbstractController
 
         $this->addFlash('success', "The user has been deleted.");
         return $this->redirectToRoute('user');
+    }
+
+    /**
+     * @Route("/profile/{user}", name="user_profile")
+     * @param User $user
+     */
+    public function profile(User $user, UserService $userService) {
+        if($user === $userService->getLoggedUser()) {
+            return $this->render('user/profile.html.twig', [
+                'user' => $user,
+            ]);
+        } else {
+            return $this->redirectToRoute("home");
+        }
     }
 }
