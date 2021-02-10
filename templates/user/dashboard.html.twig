@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="page-header d-print-none">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    {{ user.firstname ~ " " ~ user.lastname ~ "'s dashboard" }}
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cards">
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body p-2 text-center">
+                    <div class="h1 mt-2 mb-0">
+                        Logout
+                    </div>
+                    <div class="text-muted mb-3">
+                        <a href="{{ path('logout') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>
+                            Click here
+                        </a>
+                    </div>
+                </div>
+            </div>
+            </a>
+        </div>
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body p-2 text-center">
+                    <div class="h1 mt-2 mb-0">Edit my account</div>
+                    <div class="text-muted mb-3">
+                        <div class="text-muted mb-3">
+                            <a href="{{ path('user_edit', { 'user' : app.user.id }) }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
+                                Click here
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body p-2 text-center">
+                    <div class="h1 mt-2 mb-0">Change my password</div>
+                    <div class="text-muted mb-3">
+                        <a href="{{ path('user_password_change', { 'user' : user.id }) }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
+                            Click here
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body p-2 text-center">
+                    <div class="h1 mt-2 mb-0">My tasks</div>
+                    <div class="text-muted mb-3">
+                        <a href="{{ path('user_tasks', { 'user' : app.user.id }) }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="6" y1="9" x2="12" y2="9" /><line x1="4" y1="5" x2="8" y2="5" /><path d="M6 5v11a1 1 0 0 0 1 1h5" /><rect x="12" y="7" width="8" height="4" rx="1" /><rect x="12" y="15" width="8" height="4" rx="1" /></svg>
+                            Click here
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body p-2 text-center">
+                    <div class="h1 mt-2 mb-0">Add new task</div>
+                    <div class="text-muted mb-3">
+                        <a href="{{ path('task_add') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="9" y1="12" x2="15" y2="12" /><line x1="12" y1="9" x2="12" y2="15" /></svg>                            Click here
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

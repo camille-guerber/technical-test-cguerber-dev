@@ -33,4 +33,12 @@ class User
     {
         return $this->security->getUser();
     }
+
+    /**
+     * @return string|null
+     */
+    public function getCurrentPassword()
+    {
+        return $this->security->getUser()->getPassword();
+    }
 }

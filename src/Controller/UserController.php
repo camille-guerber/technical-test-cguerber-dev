@@ -5,6 +5,8 @@ namespace App\Controller;
 
 
 use App\Entity\User;
+use App\Form\UserPasswordChangeType;
+use App\Repository\TaskRepository;
 use App\Service\User as UserService;
 use App\Form\UserType;
 use App\Repository\UserRepository;
@@ -16,6 +18,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * Class UserController
@@ -26,14 +29,23 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends AbstractController
 {
     private UserRepository $userRepository;
+    private UserService $userService;
+    private TaskRepository $taskRepository;
     private EntityManagerInterface $entityManager;
+    private UserPasswordEncoderInterface $encoder;
 
     public function __construct(
         UserRepository $userRepository,
-        EntityManagerInterface $entityManager
+        TaskRepository $taskRepository,
+        EntityManagerInterface $entityManager,
+        UserService $userService,
+        UserPasswordEncoderInterface $encoder
     ) {
         $this->userRepository = $userRepository;
+        $this->taskRepository = $taskRepository;
         $this->entityManager = $entityManager;
+        $this->userService = $userService;
+        $this->encoder = $encoder;
     }
 
     /**
@@ -68,6 +80,7 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
+            $user->setPassword($this->encoder->encodePassword($user, $user->getPassword()));
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
@@ -125,16 +138,69 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/profile/{user}", name="user_profile")
+     * @Route("/password/change/{user}", name="user_password_change")
+     * @param Request $request
      * @param User $user
+     * @return Response
      */
-    public function profile(User $user, UserService $userService) {
+    public function password_change(Request $request, User $user): Response
+    {
+        if($this->userService->getLoggedUser() === $user) {
+            $form = $this->createForm(UserPasswordChangeType::class);
+
+            $form->handleRequest($request);
+
+            if($form->isSubmitted() && $form->isValid()) {
+                $data = $form->getData();
+
+                if($this->encoder->isPasswordValid($user, $data['password_current'])) {
+                    $user->setPassword($this->encoder->encodePassword($user, $data['password_new']));
+                    $this->entityManager->flush();
+                    $this->addFlash('success', "Password successfully changed.");
+                } else {
+                    $this->addFlash('warning', "Your current password is wrong.");
+                }
+            }
+            return $this->render('user/password_change.html.twig', [
+                'form' => $form->createView(),
+            ]);
+        } else {
+            return $this->redirectToRoute('home');
+        }
+    }
+
+    /**
+     * @Route("/dashboard/{user}", name="user_dashboard")
+     * @param User $user
+     * @param UserService $userService
+     * @return RedirectResponse|Response
+     */
+    public function dashboard(User $user, UserService $userService) {
         if($user === $userService->getLoggedUser()) {
-            return $this->render('user/profile.html.twig', [
+            return $this->render('user/dashboard.html.twig', [
                 'user' => $user,
             ]);
         } else {
             return $this->redirectToRoute("home");
         }
+    }
+
+    /**
+     * @Route("/task/{user}", name="user_tasks")
+     * @param Request $request
+     * @param User $user
+     * @return Response
+     */
+    public function user_tasks(Request $request, User $user) :Response {
+        if($this->userService->getLoggedUser() === $user) {
+            $tasks = $this->taskRepository->getUserTasks($user, $request->query->getInt('page', 1));
+        } else {
+            $this->addFlash('warning', "You are not allowed to access this page.");
+            return $this->redirectToRoute('task');
+        }
+
+        return $this->render('task/user_tasks.html.twig', [
+            'tasks' => $tasks,
+        ]);
     }
 }
