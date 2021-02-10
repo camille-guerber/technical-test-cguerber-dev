@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="page-header d-print-none">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Users
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th class="text-center">Tasks</th>
+                    <th class="text-right">
+                        <a href="{{ path('user_add') }}" class="text-muted">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user }}</td>
+                        <td class="text-center">{{ user.tasks.count }}</td>
+                        <td class="text-right">
+                            <a href="{{ path('user_edit', {'user': user.id}) }}" class="text-muted">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% if user is not same as(app.user) %}
+                                <a href="{{ path('user_delete', {'user': user.id}) }}" class="text-muted">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="2" class="text-center">
+                            <em>No user found</em>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="card-footer pb-0">
+            {{ pagination(users) }}
+        </div>
+    </div>
+{% endblock %}

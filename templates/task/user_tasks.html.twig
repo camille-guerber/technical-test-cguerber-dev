@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="page-header d-print-none">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    My tasks
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <table class="table mb-0">
+            <thead>
+            <tr>
+                <th>User</th>
+                <th>Task</th>
+                <th>Customer</th>
+                <th>Created At</th>
+                <th>Closed At</th>
+                <th class="text-right">
+                    <a href="{{ path('task_add') }}" class="text-muted">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for task in tasks %}
+                <tr>
+                    <td>
+                        {% if task.user is not null %}
+                            <a href="{{ path('user_edit', {'user': task.user.id}) }}" class="text-muted">
+                                {{ task.user }}
+                            </a>
+                        {% else %}
+                            {{ '--' }}
+                        {% endif %}
+                    </td>
+                    <td>{{ task.label }}</td>
+                    <td>
+                        <a href="{{ path('customer_edit', {'customer': task.customer.id}) }}" class="text-muted">
+                            {{ task.customer }}
+                        </a>
+                    </td>
+                    <td>{{ task.createdAt | date('d/m/Y') }}</td>
+                    <td>{{ task.closedAt ? (task.closedAt | date('d/m/Y')) : '--' }}</td>
+                    <td class="text-right">
+                        {% if not task.closed %}
+                            <a href="{{ path('task_close', {'task': task.id}) }}" class="text-muted">
+                                <i class="fas fa-check"></i>
+                            </a>
+                        {% endif %}
+                        <a href="{{ path('task_edit', {'task': task.id}) }}" class="text-muted">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{{ path('task_delete', {'task': task.id}) }}" class="text-muted">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="2" class="text-center">
+                        <em>No task found</em>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="card-footer pb-0">
+            {{ pagination(tasks) }}
+        </div>
+    </div>
+{% endblock %}
