@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Repository\TaskRepository;
+use App\Service\Statistic;
+use App\Service\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,6 +30,7 @@ class DefaultController extends AbstractController
         AuthenticationUtils $authenticationUtils,
         TaskRepository $taskRepository
     )
+
     {
         $this->authenticationUtils = $authenticationUtils;
         $this->taskRepository = $taskRepository;
@@ -35,30 +38,24 @@ class DefaultController extends AbstractController
 
     /**
      * @Route("", name="home")
+     * @param Statistic $statistic
+     * @return Response
      */
-    public function index(): Response
+    public function index(Statistic $statistic): Response
     {
-        $stats = [
-            'opened' => 0,
-            'unassigned' => 0,
-            'owned' => 0
-        ];
-
         $error = $this->authenticationUtils->getLastAuthenticationError();
         $lastUsername = $this->authenticationUtils->getLastUsername();
 
+        $stats = null;
+
         if($this->isGranted('IS_AUTHENTICATED_FULLY')) {
-            $stats['opened'] = count($this->taskRepository->getOpenedTasks());
-
-            $stats['unassigned'] = count($this->taskRepository->getUnassignedTasks());
-
-            $stats['owned'] = count($this->taskRepository->getOwnedOpenedTasks());
+            $stats = $statistic->dashboardStats();
         }
 
         return $this->render('default/index.html.twig', [
             'error' => $error,
             'lastUsername' => $lastUsername,
-            'stats' => $stats
+            'stats' => $stats,
         ]);
     }
 

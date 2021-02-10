@@ -61,7 +61,7 @@ class TaskRepository extends ServiceEntityRepository
 
         return new Paginator(
             $this->dql
-                ->andWhere($this->dql->expr()->eq('task.closed', ':propertyCheck'))
+                ->where($this->dql->expr()->eq('task.closed', ':propertyCheck'))
                 ->setParameter(':propertyCheck', false)
                 ->getQuery()
                 ->setMaxResults(self::MAX_RESULTS)
