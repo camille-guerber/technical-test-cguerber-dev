@@ -6,6 +6,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -20,9 +21,25 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
+    /**
+     * @var QueryBuilder
+     */
+    private QueryBuilder $dql;
+
+    /**
+     * @var int
+     */
+    private const MAX_RESULTS = 10;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
+        $this->dql = $this
+            ->createQueryBuilder('user')
+            ->select(['user', 'tasks'])
+            ->leftJoin('user.tasks', 'tasks')
+            ->orderBy('user.lastname', 'ASC')
+        ;
     }
 
     /**
@@ -51,19 +68,12 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @return Paginator|User[]
      */
     public function pagination(int $page = 1): Paginator {
-        $dql = $this->createQueryBuilder('user');
 
-        $dql
-            ->select(['user', 'tasks'])
-            ->leftJoin('user.tasks', 'tasks')
-        ;
-
-        $dql->orderBy('user.lastname', 'ASC');
-
-        $query = $dql->getQuery();
-        $query->setMaxResults(10);
-        $query->setFirstResult(($page - 1) * 10);
-
-        return new Paginator($query);
+        return new Paginator(
+            $this->dql
+                ->getQuery()
+                ->setMaxResults(self::MAX_RESULTS)
+                ->setFirstResult(($page - 1) * self::MAX_RESULTS)
+        );
     }
 }

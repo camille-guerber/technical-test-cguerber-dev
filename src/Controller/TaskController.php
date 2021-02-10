@@ -196,7 +196,7 @@ class TaskController extends AbstractController
      */
     public function user_tasks(Request $request, User $user) :Response {
         if($this->getUser()->getId() === $user->getId()) {
-            $tasks = $this->taskRepository->getUserTasks($request->query->getInt('page', 1), $user);
+            $tasks = $this->taskRepository->getUserTasks($user, $request->query->getInt('page', 1));
         } else {
             $this->addFlash('warning', "You are not allowed to access this page.");
             return $this->redirectToRoute('task');
