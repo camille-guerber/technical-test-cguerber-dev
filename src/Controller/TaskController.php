@@ -5,8 +5,6 @@ namespace App\Controller;
 
 
 use App\Entity\Task;
-use App\Entity\User;
-use App\Service\User as UserService;
 use App\Form\TaskFilterType;
 use App\Form\TaskType;
 use App\Repository\TaskRepository;
@@ -186,26 +184,6 @@ class TaskController extends AbstractController
         );
 
         return $this->render('task/owned_opened_tasks.html.twig', [
-            'tasks' => $tasks,
-        ]);
-    }
-
-    /**
-     * @Route("/{user}", name="user_tasks")
-     * @param Request $request
-     * @param User $user
-     * @param UserService $userService
-     * @return Response
-     */
-    public function user_tasks(Request $request, User $user, UserService $userService) :Response {
-        if($userService->getLoggedUser() === $user) {
-            $tasks = $this->taskRepository->getUserTasks($user, $request->query->getInt('page', 1));
-        } else {
-            $this->addFlash('warning', "You are not allowed to access this page.");
-            return $this->redirectToRoute('task');
-        }
-
-        return $this->render('task/user_tasks.html.twig', [
             'tasks' => $tasks,
         ]);
     }
