@@ -49,4 +49,13 @@ class CustomerRepository extends ServiceEntityRepository
                 ->setFirstResult(($page - 1) * self::MAX_RESULTS)
         );
     }
+
+    /**
+     * @param int $page
+     * @param Customer $customer
+     */
+    public function getRelatedTasks(Customer $customer, int $page = 1)
+    {
+        return $customer->getTasks();
+    }
 }
