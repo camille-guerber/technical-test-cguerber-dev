@@ -11,7 +11,13 @@
 
     <link rel="stylesheet" href="https://unpkg.com/@tabler/core@latest/dist/css/tabler.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
-    {% block css %}{% endblock %}
+    {% block css %}
+        <style>
+            .filter label {
+                display: none;
+            }
+        </style>
+    {% endblock %}
 </head>
 <body>
 <div class="page">
@@ -30,7 +36,7 @@
                 <div class="navbar-nav flex-row order-md-last">
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('user_dashboard', { 'user' : app.user.id }) }}">
+                            <a class="nav-link" href="{{ path('account_dashboard') }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
                                 {{ app.user.firstname }} {{ app.user.lastname }}
                             </a>

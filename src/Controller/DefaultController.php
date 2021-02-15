@@ -17,9 +17,6 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class DefaultController extends AbstractController
 {
     private AuthenticationUtils $authenticationUtils;
-    /**
-     * @var TaskRepository
-     */
     private TaskRepository $taskRepository;
 
     /**
@@ -38,18 +35,27 @@ class DefaultController extends AbstractController
 
     /**
      * @Route("", name="home")
-     * @param Statistic $statistic
      * @return Response
      */
-    public function index(Statistic $statistic): Response
+    public function index(): Response
     {
         $error = $this->authenticationUtils->getLastAuthenticationError();
         $lastUsername = $this->authenticationUtils->getLastUsername();
 
         $stats = null;
 
-        if($this->isGranted('IS_AUTHENTICATED_FULLY')) {
-            $stats = $statistic->dashboardStats();
+        if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            $stats = [
+                'opened' => $this->taskRepository->count([
+                    'closed' => false
+                ]),
+                'unassigned' => $this->taskRepository->count([
+                    'user' => false
+                ]),
+                'owned' => $this->taskRepository->count([
+                    'user' => $this->getUser()
+                ])
+            ];
         }
 
         return $this->render('default/index.html.twig', [
@@ -62,7 +68,8 @@ class DefaultController extends AbstractController
     /**
      * @Route("/logout", name="logout")
      */
-    public function logout() {
+    public function logout()
+    {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }

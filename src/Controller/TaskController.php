@@ -5,7 +5,7 @@ namespace App\Controller;
 
 
 use App\Entity\Task;
-use App\Form\TaskFilterType;
+use App\Form\Filter\TaskFilterType;
 use App\Form\TaskType;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,19 +44,14 @@ class TaskController extends AbstractController
 
         $query = null;
 
-        $task = new Task();
-
-        $filterForm = $this->createForm(TaskFilterType::class, $task);
+        $filterForm = $this->createForm(TaskFilterType::class, []);
 
         $filterForm->handleRequest($request);
 
-        if($filterForm->isSubmitted()) {
-            if(!empty($filterForm->getData())) {
-                $query = $this->taskRepository->getFilteredTasks($request->query->getInt('page', 1), $filterForm->getData(), $filterForm['status']->getData());
-            }
-        }
-
-        $tasks = $query === null ? $tasks = $this->taskRepository->pagination($request->query->getInt('page', 1)) : $query;
+        $tasks = $this->taskRepository->pagination(
+            $request->query->getInt('page', 1),
+            $filterForm->getData() ?? []
+        );
 
         return $this->render('task/index.html.twig', [
             'tasks' => $tasks,
@@ -138,53 +133,5 @@ class TaskController extends AbstractController
 
         $this->addFlash('success', "The task has been completed");
         return $this->redirectToRoute('task');
-    }
-
-    /**
-     * @Route("/opened", name="opened_tasks")
-     * @param Request $request
-     * @return Response
-     */
-    public function opened_tasks(Request $request): Response
-    {
-        $tasks = $this->taskRepository->getOpenedTasks(
-            $request->query->getInt('page', 1)
-        );
-
-        return $this->render('task/opened_tasks.html.twig', [
-            'tasks' => $tasks,
-        ]);
-    }
-
-    /**
-     * @Route("/unassigned", name="unassigned_tasks")
-     * @param Request $request
-     * @return Response
-     */
-    public function unassigned_tasks(Request $request): Response
-    {
-        $tasks = $this->taskRepository->getUnassignedTasks(
-            $request->query->getInt('page', 1)
-        );
-
-        return $this->render('task/unassigned_tasks.html.twig', [
-            'tasks' => $tasks,
-        ]);
-    }
-
-    /**
-     * @Route("/owned/opened", name="owned_opened_tasks")
-     * @param Request $request
-     * @return Response
-     */
-    public function owned_opened_tasks(Request $request): Response
-    {
-        $tasks = $this->taskRepository->getOwnedOpenedTasks(
-            $request->query->getInt('page', 1)
-        );
-
-        return $this->render('task/owned_opened_tasks.html.twig', [
-            'tasks' => $tasks,
-        ]);
     }
 }

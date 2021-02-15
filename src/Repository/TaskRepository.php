@@ -18,11 +18,6 @@ use Doctrine\Persistence\ManagerRegistry;
 class TaskRepository extends ServiceEntityRepository
 {
     /**
-     * @var QueryBuilder
-     */
-    private QueryBuilder $dql;
-
-    /**
      * @var int
      */
     private const MAX_RESULTS = 10;
@@ -30,129 +25,57 @@ class TaskRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Task::class);
-        $this->dql = $this
-            ->createQueryBuilder('task')
-            ->select(['task', 'users', 'customers'])
-            ->leftJoin('task.user', 'users')
-            ->leftJoin('task.customer', 'customers')
-            ->orderBy('task.createdAt', 'DESC')
-        ;
+    }
+
+    public function createQuery(): QueryBuilder {
+        $dql = $this->createQueryBuilder('task');
+
+        $dql->orderBy('task.createdAt', 'DESC');
+
+        return $dql;
     }
 
     /**
      * @param int $page
+     * @param array $filters
      * @return Paginator|Task[]
      */
-    public function pagination(int $page = 1): Paginator {
+    public function pagination(int $page = 1, array $filters = []): Paginator {
+        $dql = $this->createQuery();
 
-        return new Paginator(
-            $this->dql
-                ->getQuery()
-                ->setMaxResults(self::MAX_RESULTS)
-                ->setFirstResult(($page - 1) * self::MAX_RESULTS)
-        );
+        $this->filter($dql, $filters);
+
+        $dql->setMaxResults(self::MAX_RESULTS)
+            ->setFirstResult(($page - 1) * self::MAX_RESULTS);
+
+        $query = $dql->getQuery();
+
+        return new Paginator($query);
     }
 
-    /**
-     * @param int $page
-     * @return Paginator
-     */
-    public function getOpenedTasks(int $page = 1): Paginator {
+    private function filter(QueryBuilder &$dql, array $filters = []) {
 
-        return new Paginator(
-            $this->dql
-                ->where($this->dql->expr()->eq('task.closed', ':propertyCheck'))
-                ->setParameter(':propertyCheck', false)
-                ->getQuery()
-                ->setMaxResults(self::MAX_RESULTS)
-                ->setFirstResult(($page - 1) * self::MAX_RESULTS)
-        );
-    }
+        if(!empty($filters['label'])) {
+            $dql->andWhere('LOWER(task.label) LIKE LOWER(:label)')
+                ->setParameter('label', '%'.$filters['label'].'%');
+        }
 
-    /**
-     * @param int $page
-     * @return Paginator
-     */
-    public function getUnassignedTasks(int $page = 1): Paginator {
-
-        return new Paginator(
-            $this->dql
-                ->andWhere('task.user IS NULL')
-                ->getQuery()
-                ->setMaxResults(self::MAX_RESULTS)
-                ->setFirstResult(($page - 1) * self::MAX_RESULTS)
-        );
-    }
-
-    /**
-     * @param int $page
-     * @return Paginator
-     */
-    public function getOwnedOpenedTasks(int $page = 1): Paginator {
-
-        return new Paginator(
-            $this->dql
-                ->where('task.user IS NOT NULL')
-                ->andWhere($this->dql->expr()->eq('task.closed', ':propertyCheck'))
-                ->setParameter(':propertyCheck', false)
-                ->getQuery()
-                ->setMaxResults(self::MAX_RESULTS)
-                ->setFirstResult(($page - 1) * self::MAX_RESULTS)
-        );
-    }
-
-    public function getFilteredTasks(int $page = 1, $filters = null, $unmapped = null) {
-
-        if($filters->getLabel()) {
-            $this->dql
-                ->andWhere('task.label LIKE :label')
-                ->setParameter('label', '%'.$filters->getLabel().'%')
+        if(!empty($filters['user'])) {
+            $dql->andWhere('task.user = :user')
+                ->setParameter(':user', $filters['user'])
             ;
         }
 
-        if($filters->getUser()) {
-            $this->dql
-                ->andWhere('task.user = :user')
-                ->setParameter(':user', $filters->getUser())
+        if(!empty($filters['customer'])) {
+            $dql->andWhere('task.customer = :customer')
+                ->setParameter(':customer', $filters['customer'])
             ;
         }
 
-        if($filters->getCustomer()) {
-            $this->dql
-                ->andWhere('task.customer = :customer')
-                ->setParameter(':customer', $filters->getCustomer())
+        if(isset($filters['closed'])) {
+            $dql->andWhere('task.closed = :closed')
+                ->setParameter(':closed', $filters['closed'])
             ;
         }
-
-        if(isset($unmapped)) {
-            $this->dql
-                ->andWhere($this->dql->expr()->eq('task.closed', ':propertyCheck'))
-                ->setParameter(':propertyCheck', $unmapped)
-            ;
-        }
-
-        return new Paginator(
-            $this->dql
-                ->getQuery()
-                ->setMaxResults(self::MAX_RESULTS)
-                ->setFirstResult(($page - 1) * self::MAX_RESULTS)
-        );
-    }
-
-    /**
-     * @param User $user
-     * @param int $page
-     * @return Paginator
-     */
-    public function getUserTasks(User $user, int $page = 1) {
-
-        return new Paginator(
-            $this->dql
-                ->andWhere('task.user = :user')
-                ->setParameter(':user', $user)
-                ->getQuery()
-                ->setMaxResults(self::MAX_RESULTS)
-                ->setFirstResult(($page - 1) * self::MAX_RESULTS)
-        );
     }
 }
