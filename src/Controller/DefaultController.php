@@ -50,7 +50,7 @@ class DefaultController extends AbstractController
                     'closed' => false
                 ]),
                 'unassigned' => $this->taskRepository->count([
-                    'user' => false
+                    'user' => null
                 ]),
                 'owned' => $this->taskRepository->count([
                     'user' => $this->getUser()

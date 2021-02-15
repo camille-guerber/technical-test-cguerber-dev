@@ -43,6 +43,8 @@ class TaskRepository extends ServiceEntityRepository
     public function pagination(int $page = 1, array $filters = []): Paginator {
         $dql = $this->createQuery();
 
+        dump($filters);
+
         $this->filter($dql, $filters);
 
         $dql->setMaxResults(self::MAX_RESULTS)
@@ -62,20 +64,21 @@ class TaskRepository extends ServiceEntityRepository
 
         if(!empty($filters['user'])) {
             $dql->andWhere('task.user = :user')
-                ->setParameter(':user', $filters['user'])
-            ;
+                ->setParameter(':user', $filters['user']);
         }
 
         if(!empty($filters['customer'])) {
             $dql->andWhere('task.customer = :customer')
-                ->setParameter(':customer', $filters['customer'])
-            ;
+                ->setParameter(':customer', $filters['customer']);
         }
 
         if(isset($filters['closed'])) {
             $dql->andWhere('task.closed = :closed')
-                ->setParameter(':closed', $filters['closed'])
-            ;
+                ->setParameter(':closed', $filters['closed']);
+        }
+
+        if(isset($filters['unassigned']) && empty($filters['user'])) {
+            $dql->andWhere('task.user IS NULL');
         }
     }
 }
