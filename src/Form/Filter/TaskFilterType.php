@@ -1,16 +1,14 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Filter;
 
 use App\Entity\Customer;
-use App\Entity\Task;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\ResetType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,38 +19,48 @@ class TaskFilterType extends AbstractType
     {
         $builder
             ->add('label', TextType::class, [
-                'label' => 'Task label',
+                'label' => null,
                 'required' => false,
+                'attr' => [
+                    'placeholder' => 'Label'
+                ]
             ])
             ->add('user', EntityType::class, [
                 'class' => User::class,
                 'required' => false,
-                'placeholder' => '',
+                'placeholder' => 'User'
             ])
             ->add('customer', EntityType::class, [
                 'class' => Customer::class,
                 'required' => false,
-                'placeholder' => '',
+                'placeholder' => 'Customer',
             ])
-            ->add('status', ChoiceType::class, [
+            ->add('closed', ChoiceType::class, [
                 'label' => 'Status',
-                'mapped' => false,
-                'placeholder' => '',
+                'placeholder' => 'Status',
                 'required' => false,
                 'choices' => [
                     'Opened' => false,
                     'Closed' => true,
                 ],
             ])
-            ->add('submit', SubmitType::class)
-            ->setMethod('GET')
+            ->add('unassigned', HiddenType::class, [
+                'required' => false
+            ])
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Task::class,
+            'method' => 'get',
+            'name' => null,
+            'csrf_protection' => false
         ]);
+    }
+
+    public function getBlockPrefix()
+    {
+        return '';
     }
 }

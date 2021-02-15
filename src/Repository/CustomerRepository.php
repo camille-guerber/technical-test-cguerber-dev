@@ -17,11 +17,6 @@ use Doctrine\Persistence\ManagerRegistry;
 class CustomerRepository extends ServiceEntityRepository
 {
     /**
-     * @var QueryBuilder
-     */
-    private QueryBuilder $dql;
-
-    /**
      * @var int
      */
     private const MAX_RESULTS = 10;
@@ -29,12 +24,11 @@ class CustomerRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Customer::class);
-        $this->dql = $this
-            ->createQueryBuilder('customer')
-            ->select(['customer', 'tasks'])
-            ->leftJoin('customer.tasks', 'tasks')
-            ->orderBy('customer.label', 'ASC')
-        ;
+    }
+
+    private function createQuery(): QueryBuilder {
+        return $this->createQueryBuilder('customer')
+            ->orderBy('customer.label', 'ASC');
     }
 
     /**
@@ -42,20 +36,12 @@ class CustomerRepository extends ServiceEntityRepository
      * @return Paginator|Customer[]
      */
     public function pagination(int $page = 1): Paginator {
-        return new Paginator(
-            $this->dql
-                ->getQuery()
-                ->setMaxResults(self::MAX_RESULTS)
-                ->setFirstResult(($page - 1) * self::MAX_RESULTS)
-        );
-    }
+        $dql = $this->createQuery();
 
-    /**
-     * @param int $page
-     * @param Customer $customer
-     */
-    public function getRelatedTasks(Customer $customer, int $page = 1)
-    {
-        return $customer->getTasks();
+        $query = $dql->getQuery()
+            ->setMaxResults(self::MAX_RESULTS)
+            ->setFirstResult(($page - 1) * self::MAX_RESULTS);
+
+        return new Paginator($query);
     }
 }

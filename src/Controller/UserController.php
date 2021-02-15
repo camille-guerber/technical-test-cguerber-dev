@@ -29,7 +29,6 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class UserController extends AbstractController
 {
     private UserRepository $userRepository;
-    private UserService $userService;
     private TaskRepository $taskRepository;
     private EntityManagerInterface $entityManager;
     private UserPasswordEncoderInterface $encoder;
@@ -38,13 +37,11 @@ class UserController extends AbstractController
         UserRepository $userRepository,
         TaskRepository $taskRepository,
         EntityManagerInterface $entityManager,
-        UserService $userService,
         UserPasswordEncoderInterface $encoder
     ) {
         $this->userRepository = $userRepository;
         $this->taskRepository = $taskRepository;
         $this->entityManager = $entityManager;
-        $this->userService = $userService;
         $this->encoder = $encoder;
     }
 
@@ -98,30 +95,29 @@ class UserController extends AbstractController
      * @Route("/edit/{user}", name="user_edit")
      * @param Request $request
      * @param User $user
-     * @param UserService $userService
      * @return Response
      */
-    public function edit(Request $request, User $user, UserService $userService): Response {
+    public function edit(Request $request, User $user): Response {
 
-        if($user === $userService->getLoggedUser()) {
-            $form = $this->createForm(UserType::class, $user);
-            $form->handleRequest($request);
-
-            if($form->isSubmitted() && $form->isValid()) {
-                $this->entityManager->flush();
-
-                $this->addFlash('success', "The user has been updated.");
-                return $this->redirectToRoute('user');
-            }
-
-            return $this->render('user/edit.html.twig', [
-                'form' => $form->createView(),
-                'user' => $user
-            ]);
-        } else {
-            return $this->redirectToRoute('home');
+        if($user === $this->getUser()) {
+            // TODO : Redict to the profil page
+            //return $this->redirectToRoute('profil');
         }
 
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            $this->addFlash('success', "The user has been updated.");
+            return $this->redirectToRoute('user');
+        }
+
+        return $this->render('user/edit.html.twig', [
+            'form' => $form->createView(),
+            'user' => $user
+        ]);
     }
 
     /**
@@ -135,72 +131,5 @@ class UserController extends AbstractController
 
         $this->addFlash('success', "The user has been deleted.");
         return $this->redirectToRoute('user');
-    }
-
-    /**
-     * @Route("/password/change/{user}", name="user_password_change")
-     * @param Request $request
-     * @param User $user
-     * @return Response
-     */
-    public function password_change(Request $request, User $user): Response
-    {
-        if($this->userService->getLoggedUser() === $user) {
-            $form = $this->createForm(UserPasswordChangeType::class);
-
-            $form->handleRequest($request);
-
-            if($form->isSubmitted() && $form->isValid()) {
-                $data = $form->getData();
-
-                if($this->encoder->isPasswordValid($user, $data['password_current'])) {
-                    $user->setPassword($this->encoder->encodePassword($user, $data['password_new']));
-                    $this->entityManager->flush();
-                    $this->addFlash('success', "Password successfully changed.");
-                } else {
-                    $this->addFlash('warning', "Your current password is wrong.");
-                }
-            }
-            return $this->render('user/password_change.html.twig', [
-                'form' => $form->createView(),
-            ]);
-        } else {
-            return $this->redirectToRoute('home');
-        }
-    }
-
-    /**
-     * @Route("/dashboard/{user}", name="user_dashboard")
-     * @param User $user
-     * @param UserService $userService
-     * @return RedirectResponse|Response
-     */
-    public function dashboard(User $user, UserService $userService) {
-        if($user === $userService->getLoggedUser()) {
-            return $this->render('user/dashboard.html.twig', [
-                'user' => $user,
-            ]);
-        } else {
-            return $this->redirectToRoute("home");
-        }
-    }
-
-    /**
-     * @Route("/task/{user}", name="user_tasks")
-     * @param Request $request
-     * @param User $user
-     * @return Response
-     */
-    public function user_tasks(Request $request, User $user) :Response {
-        if($this->userService->getLoggedUser() === $user) {
-            $tasks = $this->taskRepository->getUserTasks($user, $request->query->getInt('page', 1));
-        } else {
-            $this->addFlash('warning', "You are not allowed to access this page.");
-            return $this->redirectToRoute('task');
-        }
-
-        return $this->render('task/user_tasks.html.twig', [
-            'tasks' => $tasks,
-        ]);
     }
 }

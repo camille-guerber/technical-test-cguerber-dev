@@ -10,87 +10,91 @@
             </div>
         </div>
     </div>
-    {{ form_start(filterForm) }}
-    <div class="row mb-2">
-        <div class="col-auto">
-            {{ form_row(filterForm.label) }}
-        </div>
-        <div class="col-auto">
-            {{ form_row(filterForm.user) }}
-        </div>
-        <div class="col-auto">
-            {{ form_row(filterForm.customer) }}
-        </div>
-        <div class="col-auto">
-            {{ form_row(filterForm.status) }}
-        </div>
-    </div>
-    <div class="row mb-2">
-        <div class="col-auto">
-            {{ form_row(filterForm.submit) }}
-        </div>
-        <div class="col-auto">
-            <a type="button" class="btn btn-warning" href="{{ path('task') }}">Reset</a>
-        </div>
-    </div>
-    {{ form_end(filterForm) }}
     <div class="card">
+        <div class="card-header">
+            {{ form_start(filterForm) }}
+            <div class="row filter">
+                <div class="col-2">
+                    {{ form_row(filterForm.label) }}
+                </div>
+                <div class="col">
+                    {{ form_row(filterForm.user) }}
+                </div>
+                <div class="col">
+                    {{ form_row(filterForm.customer) }}
+                </div>
+                <div class="col">
+                    {{ form_row(filterForm.closed) }}
+                </div>
+                <div class="col">
+                    <button class="btn btn-primary btn-block">
+                        <i class="fas fa-search me-4"></i> Search
+                    </button>
+                </div>
+                <div class="col">
+                    <a type="button" class="btn btn-muted btn-block" href="{{ path('task') }}">
+                        <i class="fas fa-times me-4"></i> Reset
+                    </a>
+                </div>
+            </div>
+            {{ form_end(filterForm) }}
+        </div>
         <table class="table mb-0">
             <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Task</th>
-                    <th>Customer</th>
-                    <th>Created At</th>
-                    <th>Closed At</th>
-                    <th class="text-right">
-                        <a href="{{ path('task_add') }}" class="text-muted">
-                            <i class="fas fa-plus"></i>
-                        </a>
-                    </th>
-                </tr>
+            <tr>
+                <th>User</th>
+                <th>Task</th>
+                <th>Customer</th>
+                <th>Created At</th>
+                <th>Closed At</th>
+                <th class="text-end">
+                    <a href="{{ path('task_add') }}" class="text-muted">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </th>
+            </tr>
             </thead>
             <tbody>
-                {% for task in tasks %}
-                    <tr>
-                        <td>
-                            {% if task.user is not null %}
-                                <a href="{{ path('user_edit', {'user': task.user.id}) }}" class="text-primary">
-                                    {{ task.user }}
-                                </a>
-                            {% else %}
-                                {{ '--' }}
-                            {% endif %}
-                        </td>
-                        <td>{{ task.label }}</td>
-                        <td>
-                            <a href="{{ path('customer_edit', {'customer': task.customer.id}) }}" class="text-primary">
-                                {{ task.customer }}
+            {% for task in tasks %}
+                <tr>
+                    <td>
+                        {% if task.user is not null %}
+                            <a href="{{ path('user_edit', {'user': task.user.id}) }}" class="text-primary">
+                                {{ task.user }}
                             </a>
-                        </td>
-                        <td>{{ task.createdAt | date('d/m/Y') }}</td>
-                        <td>{{ task.closedAt ? (task.closedAt | date('d/m/Y')) : '--' }}</td>
-                        <td class="text-right">
-                            {% if not task.closed %}
-                                <a href="{{ path('task_close', {'task': task.id}) }}" class="text-muted">
-                                    <i class="fas fa-check"></i>
-                                </a>
-                            {% endif %}
-                            <a href="{{ path('task_edit', {'task': task.id}) }}" class="text-muted">
-                                <i class="fas fa-edit"></i>
+                        {% else %}
+                            {{ '--' }}
+                        {% endif %}
+                    </td>
+                    <td>{{ task.label }}</td>
+                    <td>
+                        <a href="{{ path('customer_edit', {'customer': task.customer.id}) }}" class="text-primary">
+                            {{ task.customer }}
+                        </a>
+                    </td>
+                    <td>{{ task.createdAt | date('d/m/Y') }}</td>
+                    <td>{{ task.closedAt ? (task.closedAt | date('d/m/Y')) : '--' }}</td>
+                    <td class="text-end">
+                        {% if not task.closed %}
+                            <a href="{{ path('task_close', {'task': task.id}) }}" class="text-muted">
+                                <i class="fas fa-check"></i>
                             </a>
-                            <a href="{{ path('task_delete', {'task': task.id}) }}" class="text-muted">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="2" class="text-center">
-                            <em>No task found</em>
-                        </td>
-                    </tr>
-                {% endfor %}
+                        {% endif %}
+                        <a href="{{ path('task_edit', {'task': task.id}) }}" class="text-muted">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{{ path('task_delete', {'task': task.id}) }}" class="text-muted">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="2" class="text-center">
+                        <em>No task found</em>
+                    </td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
         <div class="card-footer pb-0">
