@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=TaskRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  */
 class Task
 {
@@ -47,6 +48,11 @@ class Task
      * @ORM\Column(type="datetime", nullable=true)
      */
     private ?\DateTimeInterface $closedAt = null;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private ?\DateTimeInterface $updatedAt = null;
 
     public function __construct() {
         $this->createdAt = new \DateTime();
@@ -132,4 +138,27 @@ class Task
 
         return $this;
     }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * Triggered every time on update
+     *
+     * @ORM\PreUpdate()
+     */
+    public function onPreUpdate()
+    {
+        $this->setUpdatedAt(new \DateTime());
+    }
+
 }

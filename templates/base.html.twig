@@ -109,7 +109,7 @@
         </div>
     {% endif %}
     <div class="content">
-        <div class="container-xl">
+        <div class="container-xl mt-2">
             {% for label, flashes in app.session.flashbag.all %}
                 {% for flash in flashes %}
                     <div class="alert alert-{{ label }}">
