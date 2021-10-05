@@ -5,6 +5,7 @@ namespace App\Controller;
 
 
 use App\Entity\User;
+use App\Form\Filter\TaskFilterType;
 use App\Form\UserPasswordChangeType;
 use App\Repository\TaskRepository;
 use App\Service\User as UserService;
@@ -132,4 +133,18 @@ class UserController extends AbstractController
         $this->addFlash('success', "The user has been deleted.");
         return $this->redirectToRoute('user');
     }
+
+    /**
+     * @param User $user
+     * @return Response
+     * @Route("/tasks/{user}", name="user_tasks")
+     */
+    public function userTasks(User $user): Response {
+
+        return $this->render('user/user_tasks.html.twig', [
+            'tasks' => $user->getTasks(),
+            'user' => $user,
+        ]);
+    }
+
 }
