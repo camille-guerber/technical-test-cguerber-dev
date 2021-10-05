@@ -16,7 +16,7 @@
                 <tr>
                     <th>Label</th>
                     <th class="text-center">Tasks</th>
-                    <th class="text-right">
+                    <th class="text-end">
                         <a href="{{ path('customer_add') }}" class="text-muted">
                             <i class="fas fa-plus"></i>
                         </a>
@@ -28,14 +28,14 @@
                     <tr>
                         <td>{{ customer }}</td>
                         <td class="text-center">{{ customer.tasks.count }}</td>
-                        <td class="text-right">
+                        <td class="text-end">
                             <a href="{{ path('customer_edit', {'customer': customer.id}) }}" class="text-muted">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <a href="{{ path('customer_delete', {'customer': customer.id}) }}" class="text-muted">
                                 <i class="fas fa-trash"></i>
                             </a>
-                            <a href="{{ path('related_tasks_customer', {'customer': customer.id}) }}" class="text-muted">
+                            <a href="{{ path('task', {'customer': customer.id}) }}" class="text-muted">
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>
