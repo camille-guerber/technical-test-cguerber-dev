@@ -46,6 +46,7 @@
                 <th>Task</th>
                 <th>Customer</th>
                 <th>Created At</th>
+                <th>Updated At</th>
                 <th>Closed At</th>
                 <th class="text-end">
                     <a href="{{ path('task_add') }}" class="text-muted">
@@ -73,6 +74,7 @@
                         </a>
                     </td>
                     <td>{{ task.createdAt | date('d/m/Y') }}</td>
+                    <td>{{ task.updatedAt ? (task.updatedAt | date("d/m/Y H:i:s", "Europe/Paris")) : '--' }}</td>
                     <td>{{ task.closedAt ? (task.closedAt | date('d/m/Y')) : '--' }}</td>
                     <td class="text-end">
                         {% if not task.closed %}
