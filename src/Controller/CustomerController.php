@@ -107,4 +107,17 @@ class CustomerController extends AbstractController
         $this->addFlash('success', "The customer has been deleted.");
         return $this->redirectToRoute('customer');
     }
+
+    /**
+     * @param Customer $customer
+     * @return Response
+     * @Route("/tasks/{customer}", name="customer_tasks")
+     */
+    public function customerTasks(Customer $customer): Response {
+
+        return $this->render('customer/customer_tasks.html.twig', [
+            'tasks' => $customer->getTasks(),
+            'customer' => $customer,
+        ]);
+    }
 }

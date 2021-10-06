@@ -5,48 +5,18 @@
         <div class="row align-items-center">
             <div class="col">
                 <h2 class="page-title">
-                    Tasks
+                    {{ customer.label }}'s related tasks
                 </h2>
             </div>
         </div>
     </div>
     <div class="card">
-        <div class="card-header">
-            {{ form_start(filterForm) }}
-            <div class="row filter">
-                <div class="col-2">
-                    {{ form_row(filterForm.label) }}
-                </div>
-                <div class="col">
-                    {{ form_row(filterForm.user) }}
-                </div>
-                <div class="col">
-                    {{ form_row(filterForm.customer) }}
-                </div>
-                <div class="col">
-                    {{ form_row(filterForm.closed) }}
-                </div>
-                <div class="col">
-                    <button class="btn btn-primary btn-block">
-                        <i class="fas fa-search me-4"></i> Search
-                    </button>
-                </div>
-                <div class="col">
-                    <a type="button" class="btn btn-muted btn-block" href="{{ path('task') }}">
-                        <i class="fas fa-times me-4"></i> Reset
-                    </a>
-                </div>
-            </div>
-            {{ form_end(filterForm) }}
-        </div>
         <table class="table mb-0">
             <thead>
             <tr>
                 <th>User</th>
                 <th>Task</th>
-                <th>Customer</th>
                 <th>Created At</th>
-                <th>Updated At</th>
                 <th>Closed At</th>
                 <th class="text-end">
                     <a href="{{ path('task_add') }}" class="text-muted">
@@ -60,7 +30,7 @@
                 <tr>
                     <td>
                         {% if task.user is not null %}
-                            <a href="{{ path('user_tasks', {'user': task.user.id}) }}" class="text-primary">
+                            <a href="{{ path('user_edit', {'user': task.user.id}) }}" class="text-primary">
                                 {{ task.user }}
                             </a>
                         {% else %}
@@ -68,13 +38,7 @@
                         {% endif %}
                     </td>
                     <td>{{ task.label }}</td>
-                    <td>
-                        <a href="{{ path('customer_tasks', {'customer': task.customer.id}) }}" class="text-primary">
-                            {{ task.customer }}
-                        </a>
-                    </td>
                     <td>{{ task.createdAt | date('d/m/Y') }}</td>
-                    <td>{{ task.updatedAt ? (task.updatedAt | date("d/m/Y H:i:s", "Europe/Paris")) : '--' }}</td>
                     <td>{{ task.closedAt ? (task.closedAt | date('d/m/Y')) : '--' }}</td>
                     <td class="text-end">
                         {% if not task.closed %}
@@ -99,8 +63,5 @@
             {% endfor %}
             </tbody>
         </table>
-        <div class="card-footer pb-0">
-            {{ pagination(tasks) }}
-        </div>
     </div>
 {% endblock %}
