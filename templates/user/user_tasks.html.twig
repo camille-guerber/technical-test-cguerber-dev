@@ -14,7 +14,6 @@
         <table class="table mb-0">
             <thead>
             <tr>
-                <th>User</th>
                 <th>Task</th>
                 <th>Customer</th>
                 <th>Created At</th>
@@ -29,15 +28,6 @@
             <tbody>
             {% for task in tasks %}
                 <tr>
-                    <td>
-                        {% if task.user is not null %}
-                            <a href="{{ path('user_edit', {'user': task.user.id}) }}" class="text-primary">
-                                {{ task.user }}
-                            </a>
-                        {% else %}
-                            {{ '--' }}
-                        {% endif %}
-                    </td>
                     <td>{{ task.label }}</td>
                     <td>
                         <a href="{{ path('customer_edit', {'customer': task.customer.id}) }}" class="text-primary">
