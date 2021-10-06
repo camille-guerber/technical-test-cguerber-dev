@@ -27,7 +27,13 @@
                 {% for user in users %}
                     <tr>
                         <td>{{ user }}</td>
-                        <td class="text-center">{{ user.tasks.count }}</td>
+                        <td class="text-center">
+                            {% if user.tasks.count > 0 %}
+                                <a href="{{ path('user_tasks', { 'user' : user.id }) }}">{{ user.tasks.count }}</a>
+                            {% else %}
+                                {{ user.tasks.count }}
+                            {% endif %}
+                        </td>
                         <td class="text-right">
                             <a href="{{ path('user_edit', {'user': user.id}) }}" class="text-muted">
                                 <i class="fas fa-edit"></i>
