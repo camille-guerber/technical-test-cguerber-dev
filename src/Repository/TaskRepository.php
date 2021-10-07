@@ -3,11 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Task;
-use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\User;
 
 /**
  * @method Task|null find($id, $lockMode = null, $lockVersion = null)
@@ -80,5 +80,46 @@ class TaskRepository extends ServiceEntityRepository
         if(isset($filters['unassigned']) && empty($filters['user'])) {
             $dql->andWhere('task.user IS NULL');
         }
+    }
+
+    public function openedTasks() {
+        $dql = $this->createQueryBuilder('t');
+
+        return
+
+            $dql
+                ->select('COUNT(t.id) as opened')
+                ->where('t.closed = :false')
+                ->setParameter('false', false)
+                ->getQuery()
+                ->getSingleScalarResult ()
+            ;
+    }
+
+    public function unassignedTasks() {
+        $dql = $this->createQueryBuilder('t');
+
+        return
+
+            $dql
+                ->select('COUNT(t.id) as unassigned')
+                ->where('t.user IS null')
+                ->getQuery()
+                ->getSingleScalarResult ()
+            ;
+    }
+
+    public function ownedTasks(User $user) {
+        $dql = $this->createQueryBuilder('t');
+
+        return
+
+            $dql
+                ->select('COUNT(t.id) as owned')
+                ->where('t.user = :userId')
+                ->setParameter('userId', $user)
+                ->getQuery()
+                ->getSingleScalarResult ()
+            ;
     }
 }
